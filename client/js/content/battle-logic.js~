@@ -1,0 +1,74 @@
+import { StateMachine } from '../tools/state.js';
+import { timeout } from '../tools/async.js';
+
+const states = {
+    s_init: async ctx => {
+	const {createBoard, ground, ncols, players} = ctx;
+	await createBoard((row, col) => ground[row*ncols + col]);	
+	return 's_spawn';
+    },
+    s_spawn: async ctx => {
+	const {units, spawnUnit, ncols, } = ctx;
+
+	const p_done = units.map(async (unit, i) => {
+	    if (!unit) {return};
+	    const [row, col] = [Math.floor(i/ncols), i%ncols];
+	    await spawnUnit(row, col, unit);
+	});
+	await Promise.all(p_done);	
+
+	return 's_makePass';
+    },
+    s_makePass: async ctx => {
+	const {createPass} = ctx;
+
+	createPass();
+	
+	return 's_play';
+    },
+    s_play: async ctx => {
+	const {ground, units, players, ncols, moveUnit, showSelect, replaceTile} = ctx;
+	
+	let [fromRow, fromCol] = await players[0].click((row, col) => units[row*ncols + col]);	
+	
+	const canClick = (row, col) => {
+	    const close = Math.max(Math.abs(row-fromRow), Math.abs(col-fromCol)) <= 1;
+	    const unit = units[row*ncols + col];
+	    const water = ground[row*ncols + col] == 'water';
+	    return close && !unit && !water;
+	};	
+	for (let i = 0; i < 3; i++) {
+	    showSelect(fromRow, fromCol, true);
+	    const action = await Promise.race([players[0].click(canClick), players[0].pass(i > 0)]);
+	    if (action === 'pass') { return 's_play'; }
+	    const [toRow, toCol] = action;
+	    showSelect(fromRow, fromCol, false);
+
+	    units[toRow*ncols + toCol] = units[fromRow*ncols + fromCol];
+	    units[fromRow*ncols + fromCol] = null;
+	    await moveUnit([fromRow, fromCol], [toRow, toCol]);
+	    if (i===0) {
+		replaceTile(fromRow, fromCol, 'water');
+		ground[fromRow*ncols + fromCol] = 'water';
+	    }	    
+	    [fromRow, fromCol] = [toRow, toCol];
+	}
+	
+	return 's_play';
+    },
+};
+export class BattleLogic {
+    constructor() {
+	this.internal = {};
+	this.external = {};
+    }
+    set(dict) {
+	Object.assign(this.external, dict);
+	return this;
+    }
+    async run() {
+	const start = 's_init';
+	const context = this.external;
+	new StateMachine().set({states, start, context}).run();
+    }
+}

@@ -1,0 +1,13 @@
+const { Server, CreateClient } = require('./star-server.js');
+
+async function main(io) {
+    while (true) {
+	const socket = await new Promise(resolve => io.on('connection', socket => resolve(socket)));
+	const client = CreateClient.fromSocket(socket);
+	const response = await client.send('echo', 'I am server');
+	console.log(response);
+	const [message, callback] = await client.receive('echo'); callback(message);
+    }
+}
+
+module.exports = {main};
