@@ -27,7 +27,7 @@ class CreateConnection {
 	    },
 	    receive: async key => {
 		const [message, callback] = await new Promise(resolve => {
-		    socket.on(key, (message, callback) => resolve([message, callback]));
+		    socket.once(key, (message, callback) => resolve([message, callback]));
 		});
 		return [message, callback];
 	    },
