@@ -357,7 +357,8 @@ const states = {
 			.setInteractive()
 			.setDepth(5);
 		    Object.assign(captures, {unselect});
-		    await new Promise(resolve => unselect.once('pointerup', resolve));
+		    await new Promise(resolve => unselect.removeAllListeners()
+				      .once('pointerup', resolve));
 
 		    exchange('unselect'); // TODO: remove?
 		    return 'unselect';
