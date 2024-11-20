@@ -185,6 +185,7 @@ const states = {
 		duration: 500,
 		ease: 'Cubic.easeOut',
 	    });
+	    plant.setDepth(row+10);
 	    return plant;
 	};
 	const moveUnit = async (from, to) => {
