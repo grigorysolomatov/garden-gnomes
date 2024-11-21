@@ -9,10 +9,11 @@ export const root = {
 	    google: { families: ['Modak'] }, // 'Nova Flat', 
 	    active: resolve,
 	}));
-	
+
+	const [w, h] = [window.innerWidth, window.innerHeight];
 	const game = createGame({
-	    width: window.innerWidth,
-	    height: window.innerHeight,
+	    height: h,
+	    width: Math.min(w, h/1.6),
 	    backgroundColor: '#111111',
 	    type: Phaser.WEBGL,
 	});

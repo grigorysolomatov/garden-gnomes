@@ -275,6 +275,13 @@ const states = {
 	};
 	
 	const players = ['red', 'blue'].map((team, i) => {
+	    const cleanup = () => {
+		const {pass, plant, jump, unselect} = captures;
+		pass.disableInteractive().glow(0);
+		plant.disableInteractive().glow(0);
+		jump.disableInteractive().glow(0);
+		unselect?.disableInteractive();
+	    };
 	    const player = {
 		click: async selector => {
 		    const {clicks, units, pass, plant, options} = captures;
@@ -304,10 +311,8 @@ const states = {
 		    }));
 
 		    units.find(unit => unit.row === row && unit.col === col)?.wiggle();
-		    pass.disableInteractive().glow(0);
-		    plant.disableInteractive().glow(0);
-
-		    exchange([row, col]); // TODO: remove?
+		    
+		    cleanup(); exchange([row, col]);
 		    return [row, col];
 		},
 		press: async canPress => {
@@ -340,11 +345,8 @@ const states = {
 			pressButton(canPress, 'pass'),
 			pressButton(canPress, 'jump'),
 		    ]);
-		    pass.disableInteractive().glow(0);
-		    plant.disableInteractive().glow(0);
-		    jump.disableInteractive().glow(0);
-
-		    exchange(pressed); // TODO: remove?
+		    
+		    cleanup(); exchange(pressed);
 		    return pressed;
 		},
 		unselect: async canPress => {
@@ -355,12 +357,13 @@ const states = {
 			.setDisplaySize(width, height)
 			.setAlpha(1e-99)
 			.setInteractive()
-			.setDepth(5);
+			.setDepth(5);		    
 		    Object.assign(captures, {unselect});
-		    await new Promise(resolve => unselect.removeAllListeners()
+		    await new Promise(resolve => unselect
+				      .removeAllListeners().setInteractive()
 				      .once('pointerup', resolve));
-
-		    exchange('unselect'); // TODO: remove?
+		    
+		    cleanup(); exchange('unselect');
 		    return 'unselect';
 		},
 		team,
@@ -374,7 +377,6 @@ const states = {
 	    if (myIdx===undefined || myIdx===i) { return player; }
 	    return online;
 	});	
-	// players[0].unselect();
 	
 	await new Logic().set({
 	    nrows, ncols,

@@ -13,7 +13,11 @@ export const online = {
 	const theirNum = await connection.send('exchange', myNum);
 	const myIdx = Number(myNum > theirNum);
 	
-	const exchange = async data => await connection.send('exchange', data);
+	const exchange = async data => {
+	    const received = await connection.send('exchange', data);
+	    // console.log(received);
+	    return received;
+	};
 	await new Battle().set({scene, exchange, myIdx}).run();
 
 	const choice = await scene.newMenu(0.5*width, 0.9*height, {

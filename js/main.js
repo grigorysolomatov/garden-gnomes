@@ -19,9 +19,10 @@ const states = {
 	    opponent.callback();
 	    return 's_play';
 	}
-	if (!opponent) {
-	    queue.push(client);
-	}
+	queue.push(client);
+	await client.receive('disconnect');
+	const idx = queue.indexOf(client);
+	if (idx !== -1) { queue.splice(idx, 1); }
     },
     s_play: async ctx => {
 	const {client, shared} = ctx;

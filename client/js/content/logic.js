@@ -70,7 +70,7 @@ const states = {
 	    const flower = plants[row*ncols + col] === 'flower';
 	    return close && !unit && !water && !flower;
 	};
-	showSelect(fromRow, fromCol, true);	
+	showSelect(fromRow, fromCol, true);
 	const action = await Promise.race([
 	    player.click(canClick),
 	    player.unselect(progress === 0),
