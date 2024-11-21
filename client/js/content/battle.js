@@ -312,7 +312,7 @@ const states = {
 
 		    units.find(unit => unit.row === row && unit.col === col)?.wiggle();
 		    
-		    cleanup(); exchange([row, col]);
+		    cleanup(); await exchange([row, col]);
 		    return [row, col];
 		},
 		press: async canPress => {
@@ -346,7 +346,7 @@ const states = {
 			pressButton(canPress, 'jump'),
 		    ]);
 		    
-		    cleanup(); exchange(pressed);
+		    cleanup(); await exchange(pressed);
 		    return pressed;
 		},
 		unselect: async canPress => {
@@ -363,7 +363,7 @@ const states = {
 				      .removeAllListeners().setInteractive()
 				      .once('pointerup', resolve));
 		    
-		    cleanup(); exchange('unselect');
+		    cleanup(); await exchange('unselect');
 		    return 'unselect';
 		},
 		team,
